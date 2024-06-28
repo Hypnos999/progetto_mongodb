@@ -77,8 +77,6 @@ if __name__ == '__main__':
 
             input('\nPremi invio per continuare')
 
-
-
         ## aggiungi terreno
         elif scelta == 4:
             print('Inserisci i punti geografici del terreno (minimo 3), \ninserisci q per passare al prossimo step\n')
@@ -113,4 +111,5 @@ if __name__ == '__main__':
             }
 
             db.aggiungi_terreno(terreno)
-            print("Terreno aggiunto con successo!")
+            input("Terreno aggiunto con successo! premi invio per continuare")
+
