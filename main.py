@@ -22,10 +22,9 @@ def get_db(
         "coordinates": [
             [
                 [-73.856077, 40.848447],
-                [-73.856077, 40.848447],
-                [-73.856077, 40.848447],
-                [-73.856077, 40.848447],
-                [-73.856077, 40.848447]
+                [-73.856147, 40.848477],
+                [-73.856117, 40.848407],
+                [-73.856077, 40.848447]  # Closing the polygon
             ]
         ]
     }
@@ -41,7 +40,26 @@ def get_db(
     # Create a 2dsphere index on the terrain field
     collection.create_index([("terrain", pymongo.GEOSPHERE)])
 
-    print(json.dumps(collection.find_one({'name': 'Sample Terrain'})))
+    # Define the point to search for
+    search_point = {
+        "type": "Point",
+        "coordinates": [-73.856077, 40.848447]
+    }
+
+    # Query for terrains that intersect with the search point
+    query = {
+        "terrain": {
+            "$geoIntersects": {
+                "$geometry": search_point
+            }
+        }
+    }
+
+    results = collection.find(query)
+
+    for result in results:
+        print(result)
+
     return collection
     
 if __name__ == '__main__':
