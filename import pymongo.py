@@ -1,4 +1,5 @@
 import pymongo
+import json
 from pymongo import MongoClient
 
 class TerrenoDatabase:
@@ -7,8 +8,18 @@ class TerrenoDatabase:
         self.db = self.client[db_name]
         self.terreni = self.db["terreni"]
 
+        # Assicura che la collezione utilizzi un indice geospaziale
+        self.terreni.create_index([("coordinate", pymongo.GEOSPHERE)])
+
+    def carica_dati_iniziali(self, file_path):
+        with open(file_path) as f:
+            dati_terreni = json.load(f)
+            self.terreni.insert_many(dati_terreni)
+            print("Dati iniziali caricati con successo.")
+
     def find_terreno_by_point(self, lat, lon):
-        terreno = self.terreni.find_one({"coordinate.lat": lat, "coordinate.lon": lon})
+        point = {"type": "Point", "coordinates": [lon, lat]}
+        terreno = self.terreni.find_one({"coordinate": {"$geoIntersects": {"$geometry": point}}})
         return terreno
 
     def find_terreni_by_proprietario(self, codice_fiscale):
@@ -24,6 +35,9 @@ class TerrenoDatabase:
 
 def main():
     db = TerrenoDatabase()
+
+    # Usa il percorso assoluto del file JSON
+    db.carica_dati_iniziali("/Users/michelepotsios/Desktop/mongo/progetto_mongodb/terreni.json")
 
     while True:
         print("\nApplicazione per il censimento dei terreni")
@@ -57,7 +71,10 @@ def main():
             strade_intersezioni = input("ID delle strade intersecate (separate da virgola): ").split(",")
             terreno = {
                 "id_terreno": id_terreno,
-                "coordinate": {"lat": lat, "lon": lon},
+                "coordinate": {
+                    "type": "Point",
+                    "coordinates": [lon, lat]
+                },
                 "proprietario": proprietario,
                 "descrizione": descrizione,
                 "strade_intersezioni": strade_intersezioni
