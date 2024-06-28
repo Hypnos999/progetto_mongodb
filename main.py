@@ -15,16 +15,33 @@ def get_db(
     db = client.test
     client.drop_database(db)
     collection = db.test
-    
-    data_id = collection.insert_one({
-        "name": "test",
-        "project": "mongodb",
-        "team":  ['Flavio', 'Mirko', 'Michele']
-    })
-    
-    #data = collection.find_one({"_id": data_id.inserted_id})
-    #print(json.dumps({k:v for k,v in data.items() if k != '_id'}, indent=2))
 
+    # Define a terrain using a GeoJSON Polygon
+    geojson_polygon = {
+        "type": "Polygon",
+        "coordinates": [
+            [
+                [-73.856077, 40.848447],
+                [-73.856077, 40.848447],
+                [-73.856077, 40.848447],
+                [-73.856077, 40.848447],
+                [-73.856077, 40.848447]
+            ]
+        ]
+    }
+
+    document = {
+        "name": "Sample Terrain",
+        "terrain": geojson_polygon
+    }
+
+    # Insert the document
+    collection.insert_one(document)
+
+    # Create a 2dsphere index on the terrain field
+    collection.create_index([("terrain", pymongo.GEOSPHERE)])
+
+    print(json.dumps(collection.find_one({'name': 'Sample Terrain'})))
     return collection
     
 if __name__ == '__main__':
