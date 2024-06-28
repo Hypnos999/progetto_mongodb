@@ -1,0 +1,3 @@
+i terrenni non dovrebbero sovraporsi, attualmente se inseriamo altri terreni sugli stessi punti dovrebbe darci errore
+gli angoli dei terreni quindi dovrebbero esere unici
+come possiamo far si che un terreno non venga aggiunto se uno dei suoi punti è contenuto all'interno di un atro terreno?

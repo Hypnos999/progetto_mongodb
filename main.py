@@ -62,16 +62,26 @@ if __name__ == '__main__':
 
         ## cerca terreno per un punto geografico
         if scelta == 1:
+            print('Inserisci q per passare al prossimo step\n')
+
             lat = float(input("Inserisci la latitudine: "))
             lon = float(input("Inserisci la longitudine: "))
 
             terreno = db.find_terreno_by_point(lat, lon)
-            print("Terreno trovato:", terreno)
+
+            print("\nTerreno trovato:")
+            for k, v in terreno.items():
+                if k in ["coordinate", "_id"]:
+                    continue
+                print(f'{k}: {v}')
+
+            input('\nPremi invio per continuare')
+
+
 
         ## aggiungi terreno
         elif scelta == 4:
-            # id_terreno = input("ID del terreno: ")
-            print('Inserisci i punti geografici del terreno (minimo 3), \ninserisci q per passare al prossimo step')
+            print('Inserisci i punti geografici del terreno (minimo 3), \ninserisci q per passare al prossimo step\n')
 
             i = 1
             cord = []
@@ -87,8 +97,12 @@ if __name__ == '__main__':
                 i += 1
 
             proprietario = input("Codice fiscale del proprietario: ")
-            # descrizione = input("Descrizione: ")
+            descrizione = input("Descrizione: ")
+
+            # Questi dati sono futili o li chiediamo all'utente?
+            # id_terreno = input("ID del terreno: ")
             # strade_intersezioni = input("ID delle strade intersecate (separate da virgola): ").split(",")
+
             terreno = {
                 "type": "Polygon",
                 "coordinates": [cord],
