@@ -106,8 +106,9 @@ if __name__ == '__main__':
             terreno = {
                 "type": "Polygon",
                 "coordinates": [cord],
-                "proprietario": proprietario
-                # "descrizione": descrizione,
+                "proprietario": proprietario,
+                "descrizione": descrizione,
+                # "id_terreno": id_terreno,
                 # "strade_intersezioni": strade_intersezioni
             }
 
