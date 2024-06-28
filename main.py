@@ -76,22 +76,23 @@ if __name__ == '__main__':
             i = 1
             cord = []
             while True:
-                lat = float(input(f"Latitudine {i}° punto: "))
-                lon = float(input(f"Longitudine {i}° punto: "))
+                lat = input(f"Latitudine {i}° punto: ").lower().strip()
+                if lat == 'q': break
 
-                if lat == 'q' or lon == 'q': break
-                cord.append([lon, lat])
+                lon = input(f"Longitudine {i}° punto: ").lower().strip()
+                if lon == 'q': break
+
+                cord.append([float(lon), float(lat)])
+
+                i += 1
 
             proprietario = input("Codice fiscale del proprietario: ")
             # descrizione = input("Descrizione: ")
             # strade_intersezioni = input("ID delle strade intersecate (separate da virgola): ").split(",")
             terreno = {
-                # "id_terreno": id_terreno,
-                "coordinate": {
-                    "type": "Polygon",
-                    "coordinates": cord
-                },
-                "proprietario": proprietario,
+                "type": "Polygon",
+                "coordinates": [cord],
+                "proprietario": proprietario
                 # "descrizione": descrizione,
                 # "strade_intersezioni": strade_intersezioni
             }
