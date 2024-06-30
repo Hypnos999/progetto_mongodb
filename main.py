@@ -147,35 +147,41 @@ if __name__ == '__main__':
 
         ## aggiungi terreno
         elif scelta == 4:
-            print('Inserisci i punti geografici del terreno (minimo 3), \ninserisci q per passare al prossimo step\n')
+            while True:    
+                print('Inserisci i punti geografici del terreno (minimo 3), \ninserisci q per passare al prossimo step\n')
+                i = 1
+                cord = []
+                try:
+                    while True:
+                        lat = input(f"Latitudine {i}° punto: ").lower().strip()
+                        if lat == 'q' and len(cord)>=3: break
 
-            i = 1
-            cord = []
-            while True:
-                lat = input(f"Latitudine {i}° punto: ").lower().strip()
-                if lat == 'q': break
+                        lon = input(f"Longitudine {i}° punto: ").lower().strip()
+                        if lon == 'q' and len(cord)>=3: break
 
-                lon = input(f"Longitudine {i}° punto: ").lower().strip()
-                if lon == 'q': break
+                        cord.append([float(lon), float(lat)])
 
-                cord.append([float(lon), float(lat)])
+                        i += 1
+                    
+                    cord = cord + [cord[0]]  # Chiude il poligono
+                    proprietario = input("Codice fiscale del proprietario: ")
+                    descrizione = input("Descrizione: ")
 
-                i += 1
+                    terreno = {
+                        "coordinate": {
+                            "type": "Polygon",
+                            "coordinates": [cord],
+                        },
+                        "proprietario": proprietario,
+                        "descrizione": descrizione,
+                    }
 
-            cord = cord + [cord[0]]  # Chiude il poligono
-            proprietario = input("Codice fiscale del proprietario: ")
-            descrizione = input("Descrizione: ")
-
-            terreno = {
-                "coordinate": {
-                    "type": "Polygon",
-                    "coordinates": [cord],
-                },
-                "proprietario": proprietario,
-                "descrizione": descrizione,
-            }
-
-            if db.check_terreno_occupato(cord):
-                print("\nIl terreno è già occupato. Impossibile caricare i dati sul database")
-            else: db.aggiungi_terreno(terreno)
+                    if db.check_terreno_occupato(cord):
+                        print("\nIl terreno è già occupato. Impossibile caricare i dati sul database")
+                        break
+                    else: 
+                        db.aggiungi_terreno(terreno)
+                        break
+                except: 
+                    print("Errore coordinate non valide, riprovare")
             input('\nPremi invio per continuare...')
