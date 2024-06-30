@@ -76,11 +76,29 @@ if __name__ == '__main__':
 
             print("\nTerreno trovato:")
             for k, v in terreno.items():
-                if k in ["coordinate", "_id"]:
+                if k in ["coordinate", "_id", 'type']:
                     continue
                 print(f'{k}: {v}')
 
             input('\nPremi invio per continuare')
+
+        elif scelta == 2:
+            codice_fiscale = input("Inserisci il codice fiscale: ")
+            terreni = db.find_terreni_by_proprietario(codice_fiscale)
+
+            if terreni:
+                print("\nTerreni trovati:")
+                for terreno in terreni:
+                    print('')
+                    for k, v in terreno.items():
+                        if k in ["coordinate", "_id", 'type']:
+                            continue
+                        print(f'{k}: {v}')
+            else:
+                print('Nessun terrreno trovato')
+
+            input('\nPremi invio per continuare')
+
 
         ## aggiungi terreno
         elif scelta == 4:
