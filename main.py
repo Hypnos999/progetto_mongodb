@@ -39,7 +39,7 @@ class TerrenoDatabase:
         
     def check_terreno_occupato(self, cordinate_nuovo_terreno):
         for new_cord in cordinate_nuovo_terreno:
-            if self.terreni.find_one({ "coordinate": { "$geoIntersects": { "$geometry": { type: "Point", "coordinates": new_cord } } } }):
+            if self.terreni.find_one({ "coordinate": { "$geoIntersects": {"$geometry": new_cord }}}):
                 return True
             else: return False
 
