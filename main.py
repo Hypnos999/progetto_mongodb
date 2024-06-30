@@ -59,6 +59,14 @@ if __name__ == '__main__':
     db = TerrenoDatabase(port=27017)
 
     while True:
+        ## pulisce il terminale
+        if os.name == 'nt':
+            # Per Windows
+            os.system('cls')
+        else:
+            # Per Unix/Linux/macOS
+            os.system('clear')
+
 
         print("Applicazione per il censimento dei terreni, a cura di FLavio Manna, Michele Potsios, Mirko La Rocca\n")
         print("1. Cerca terreno per punto geografico")
