@@ -1,5 +1,6 @@
 import pymongo
 import json
+import os
 
 class TerrenoDatabase:
     def __init__(
@@ -58,6 +59,7 @@ if __name__ == '__main__':
     db = TerrenoDatabase(port=27017)
 
     while True:
+
         print("Applicazione per il censimento dei terreni, a cura di FLavio Manna, Michele Potsios, Mirko La Rocca\n")
         print("1. Cerca terreno per punto geografico")
         print("2. Cerca terreni per codice fiscale")
@@ -78,18 +80,26 @@ if __name__ == '__main__':
 
         ## cerca terreno per un punto geografico
         if scelta == 1:
-            print('Inserisci q per passare al prossimo step\n')
+            print('Inserisci q per terminare il processo\n')
 
-            lat = float(input("Inserisci la latitudine: "))
-            lon = float(input("Inserisci la longitudine: "))
+            lat = input("Inserisci la latitudine: ").lower().strip()
+            if lat != 'q':
 
-            terreno = db.find_terreno_by_point(lat, lon)
+                lon = input("Inserisci la longitudine: ").lower().strip()
+                if lon != 'q':
+                    try:
+                        lat, lon = float(lat), float(lon)
 
-            print("\nTerreno trovato:")
-            for k, v in terreno.items():
-                if k in ["coordinate", "_id", 'type']:
-                    continue
-                print(f'{k}: {v}')
+                        # Utilizza il metodo find_terreno_by_point per cercare il terreno
+                        terreno = db.find_terreno_by_point(lat, lon)
+
+                        print("\nTerreno trovato:")
+                        for k, v in terreno.items():
+                            if k in ["coordinate", "_id", 'type']:
+                                continue
+                            print(f'{k}: {v}')
+                    except:
+                        print('Inserisci valori validi')
 
             input('\nPremi invio per continuare')
 
@@ -129,19 +139,22 @@ if __name__ == '__main__':
 
                 i += 1
 
-            terreni = db.find_terreni_by_strada(cord)
-
-            if terreni:
-                print("\nTerreni trovati:")
-                for terreno in terreni:
-                    for k, v in terreno.items():
-                        if k in ["coordinate", "_id", 'type']:
-                            continue
-                        print(f'{k}: {v}')
-                    print('')
-
+            if i < 3:
+                print('Inserisci almeno 2 punti')
             else:
-                print('\nNessun terreno trovato.')
+                terreni = db.find_terreni_by_strada(cord)
+
+                if terreni:
+                    print("\nTerreni trovati:")
+                    for terreno in terreni:
+                        for k, v in terreno.items():
+                            if k in ["coordinate", "_id", 'type']:
+                                continue
+                            print(f'{k}: {v}')
+                        print('')
+
+                else:
+                    print('\nNessun terreno trovato.')
 
             input('\nPremi invio per continuare...')
 
@@ -154,34 +167,37 @@ if __name__ == '__main__':
                 try:
                     while True:
                         lat = input(f"Latitudine {i}° punto: ").lower().strip()
-                        if lat == 'q' and len(cord)>=3: break
+                        if lat == 'q': break
 
                         lon = input(f"Longitudine {i}° punto: ").lower().strip()
-                        if lon == 'q' and len(cord)>=3: break
+                        if lon == 'q': break
 
                         cord.append([float(lon), float(lat)])
 
                         i += 1
-                    
-                    cord = cord + [cord[0]]  # Chiude il poligono
-                    proprietario = input("Codice fiscale del proprietario: ")
-                    descrizione = input("Descrizione: ")
 
-                    terreno = {
-                        "coordinate": {
-                            "type": "Polygon",
-                            "coordinates": [cord],
-                        },
-                        "proprietario": proprietario,
-                        "descrizione": descrizione,
-                    }
+                    if len(cord) >= 3:
+                        cord = cord + [cord[0]]  # Chiude il poligono
+                        proprietario = input("Codice fiscale del proprietario: ")
+                        descrizione = input("Descrizione: ")
 
-                    if db.check_terreno_occupato(cord):
-                        print("\nIl terreno è già occupato. Impossibile caricare i dati sul database")
-                        break
-                    else: 
-                        db.aggiungi_terreno(terreno)
-                        break
+                        terreno = {
+                            "coordinate": {
+                                "type": "Polygon",
+                                "coordinates": [cord],
+                            },
+                            "proprietario": proprietario,
+                            "descrizione": descrizione,
+                        }
+
+                        if db.check_terreno_occupato(cord):
+                            print("\nIl terreno è già occupato. Impossibile caricare i dati sul database")
+                            break
+                        else:
+                            db.aggiungi_terreno(terreno)
+                            break
+                    else: break
+
                 except: 
                     print("Errore coordinate non valide, riprovare")
             input('\nPremi invio per continuare...')
