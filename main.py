@@ -4,8 +4,8 @@ import json
 class TerrenoDatabase:
     def __init__(
             self,
-            host='127.0.0.1',
-            port=21017,
+            host='0.0.0.0',
+            port=27017,
             db_name="catasto_terreni"
     ):
         self.client = pymongo.MongoClient(port=port, host=host)
@@ -36,10 +36,15 @@ class TerrenoDatabase:
 
     def aggiungi_terreno(self, terreno):
         self.terreni.insert_one(terreno)
-
+        
+    def check_terreno_occupato(self, cordinate_nuovo_terreno):
+        for new_cord in cordinate_nuovo_terreno:
+            if self.terreni.find_one({ "coordinate": { "$geoIntersects": { "$geometry": { type: "Point", "coordinates": new_cord } } } }):
+                return True
+            else: return False
 
 if __name__ == '__main__':
-    db = TerrenoDatabase(port=8081)
+    db = TerrenoDatabase(port=27017)
 
     while True:
         print("Applicazione per il censimento dei terreni, a cura di FLavio Manna, Michele Potsios, Mirko La Rocca\n")
@@ -99,7 +104,7 @@ if __name__ == '__main__':
 
             # Questi dati sono futili o li chiediamo all'utente?
             # id_terreno = input("ID del terreno: ")
-            # strade_intersezioni = input("ID delle strade intersecate (separate da virgola): ").split(",")
+            strade_intersezioni = input("ID delle strade intersecate (separate da virgola): ").split(",")
 
             terreno = {
                 "type": "Polygon",
@@ -107,9 +112,9 @@ if __name__ == '__main__':
                 "proprietario": proprietario,
                 "descrizione": descrizione,
                 # "id_terreno": id_terreno,
-                # "strade_intersezioni": strade_intersezioni
+                "strade_intersezioni": strade_intersezioni
             }
 
-            db.aggiungi_terreno(terreno)
-            input("Terreno aggiunto con successo! premi invio per continuare")
-
+            if db.check_terreno_occupato:
+                print("Il terreno è già occupato. Impossibile occuparlo")
+            else: db.aggiungi_terreno(terreno)
