@@ -133,6 +133,6 @@ if __name__ == '__main__':
                 "strade_intersezioni": strade_intersezioni
             }
 
-            if db.check_terreno_occupato:
+            if db.check_terreno_occupato(cord):
                 print("Il terreno è già occupato. Impossibile occuparlo")
             else: db.aggiungi_terreno(terreno)
