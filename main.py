@@ -77,6 +77,11 @@ if __name__ == '__main__':
 
             input('\nPremi invio per continuare')
 
+        elif scelta == 2:
+            codice_fiscale = input("Inserisci il codice fiscale: ")
+            terreni = db.find_terreni_by_proprietario(codice_fiscale)
+            print("Terreni trovati:", terreni)
+
         ## aggiungi terreno
         elif scelta == 4:
             print('Inserisci i punti geografici del terreno (minimo 3), \ninserisci q per passare al prossimo step\n')
