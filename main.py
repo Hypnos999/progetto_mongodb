@@ -16,11 +16,6 @@ class TerrenoDatabase:
         # Assicura che la collezione utilizzi un indice geospaziale
         self.terreni.create_index([("coordinate", pymongo.GEOSPHERE)])
 
-    def carica_dati_iniziali(self, file_path):
-        with open(file_path) as f:
-            dati_terreni = json.load(f)
-            self.terreni.insert_many(dati_terreni)
-            print("Dati iniziali caricati con successo.")
 
     def find_terreno_by_point(self, lat, lon):
         point = {"type": "Point", "coordinates": [lon, lat]}
@@ -55,6 +50,11 @@ class TerrenoDatabase:
                 return True
             else: return False
 
+    def find_terreni(self):
+        terreni = self.terreni.find()
+        print(terreni)
+        return list(terreni)
+
 if __name__ == '__main__':
     db = TerrenoDatabase(port=27017)
 
@@ -73,6 +73,7 @@ if __name__ == '__main__':
         print("2. Cerca terreni per codice fiscale")
         print("3. Cerca terreni coinvolti da una nuova strada")
         print("4. Aggiungi nuovo terreno")
+        print("5. Visualizza tutti i terreni")
         print("q. Esci")
 
         scelta = input("\nScegli un'opzione: ").lower().strip()
@@ -82,7 +83,7 @@ if __name__ == '__main__':
 
         try:
             scelta = int(scelta)
-            assert scelta <= 4
+            assert scelta <= 5
         except:
             continue
 
@@ -103,7 +104,10 @@ if __name__ == '__main__':
 
                         print("\nTerreno trovato:")
                         for k, v in terreno.items():
-                            if k in ["coordinate", "_id", 'type']:
+                            if k in ["_id", 'type']:
+                                continue
+                            if k == 'coordinate':
+                                print(f'{k}: {v["coordinates"]}')
                                 continue
                             print(f'{k}: {v}')
                     except:
@@ -113,7 +117,7 @@ if __name__ == '__main__':
 
 
         elif scelta == 2:
-            codice_fiscale = input("Inserisci il codice fiscale: ")
+            codice_fiscale = input("Inserisci il codice fiscale: ").strip()
             terreni = db.find_terreni_by_proprietario(codice_fiscale)
 
             if terreni:
@@ -121,7 +125,10 @@ if __name__ == '__main__':
                 for terreno in terreni:
                     print('')
                     for k, v in terreno.items():
-                        if k in ["coordinate", "_id", 'type']:
+                        if k in ["_id", 'type']:
+                            continue
+                        if k == 'coordinate':
+                            print(f'{k}: {v["coordinates"]}')
                             continue
                         print(f'{k}: {v}')
             else:
@@ -208,4 +215,17 @@ if __name__ == '__main__':
 
                 except: 
                     print("Errore coordinate non valide, riprovare")
+            input('\nPremi invio per continuare...')
+
+        elif scelta == 5:
+            for terreno in db.find_terreni():
+                for k, v in terreno.items():
+                    if k in ["_id", 'type']:
+                        continue
+                    if k == 'coordinate':
+                        print(f'{k}: {v["coordinates"]}')
+                        continue
+                    print(f'{k}: {v}')
+                print('')
+
             input('\nPremi invio per continuare...')
