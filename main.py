@@ -180,6 +180,8 @@ if __name__ == '__main__':
                 try:
                     lon = float(lon)
                     lat = float(lat)
+                    assert lon > -180 and lon < 180
+                    assert lat > -90 and lat < 90
                     cord.append([lon, lat])
                     i += 1
                 except:
