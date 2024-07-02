@@ -1,12 +1,11 @@
 import pymongo
-import json
 import os
 
 class TerrenoDatabase:
     def __init__(
             self,
-            host='0.0.0.0',
-            port=27017,
+            host,
+            port,
             db_name="catasto_terreni"
     ):
         self.client = pymongo.MongoClient(port=port, host=host)
@@ -52,11 +51,28 @@ class TerrenoDatabase:
 
     def find_terreni(self):
         terreni = self.terreni.find()
-        print(terreni)
         return list(terreni)
 
+
 if __name__ == '__main__':
-    db = TerrenoDatabase(port=27017)
+    while True:
+        try:
+            host = input('Inserisci l\'host a cui connettersi (lascia vuoto per 0.0.0.0): ').strip()
+            port = (input('Inserisci la porta (lascia vuoto per 27017): ').strip())
+
+            if host == '':
+                host = '0.0.0.0'
+            if port == '':
+                port = 27017
+
+            db = TerrenoDatabase(host=host, port=int(port))
+
+            break
+        except Exception as e:
+            print(e)
+            print("Errore, riprova")
+
+
 
     while True:
         ## pulisce il terminale
@@ -89,19 +105,23 @@ if __name__ == '__main__':
 
         ## cerca terreno per un punto geografico
         if scelta == 1:
-            print('Inserisci q per terminare il processo\n')
+            print('\nInserisci le coordinate geografiche del punto (lat [-90, 90], lon [-180, 180])')
+            print('Inserisci q per terminare il processo')
 
-            lat = input("Inserisci la latitudine: ").lower().strip()
-            if lat != 'q':
+            while True:
+                lat = input("Inserisci la latitudine: ").lower().strip()
+                if lat == 'q': break
 
                 lon = input("Inserisci la longitudine: ").lower().strip()
-                if lon != 'q':
-                    try:
-                        lat, lon = float(lat), float(lon)
+                if lon == 'q': break
 
-                        # Utilizza il metodo find_terreno_by_point per cercare il terreno
-                        terreno = db.find_terreno_by_point(lat, lon)
+                try:
+                    lat, lon = float(lat), float(lon)
 
+                    # Utilizza il metodo find_terreno_by_point per cercare il terreno
+                    terreno = db.find_terreno_by_point(lat, lon)
+
+                    if terreno:
                         print("\nTerreno trovato:")
                         for k, v in terreno.items():
                             if k in ["_id", 'type']:
@@ -110,20 +130,22 @@ if __name__ == '__main__':
                                 print(f'{k}: {v["coordinates"]}')
                                 continue
                             print(f'{k}: {v}')
-                    except:
-                        print('Inserisci valori validi')
+                    else:
+                        print('\nNessun terreno presente')
+                    break
+                except:
+                    print('Coordinate non valide')
 
-            input('\nPremi invio per continuare')
+            input('\nPremi invio per continuare...')
 
 
         elif scelta == 2:
-            codice_fiscale = input("Inserisci il codice fiscale: ").strip()
+            codice_fiscale = input("\nInserisci il codice fiscale: ").strip()
             terreni = db.find_terreni_by_proprietario(codice_fiscale)
 
             if terreni:
                 print("\nTerreni trovati:")
                 for terreno in terreni:
-                    print('')
                     for k, v in terreno.items():
                         if k in ["_id", 'type']:
                             continue
@@ -131,10 +153,12 @@ if __name__ == '__main__':
                             print(f'{k}: {v["coordinates"]}')
                             continue
                         print(f'{k}: {v}')
-            else:
-                print('Nessun terrreno trovato')
+                    print('')
 
-            input('\nPremi invio per continuare')
+            else:
+                print('\nNessun terrreno trovato\n')
+
+            input('Premi invio per continuare...')
 
         ## trova terreni per strada
         ## la strada puo' essere formata da piu' punti
@@ -143,19 +167,25 @@ if __name__ == '__main__':
         elif scelta == 3:
             i = 1
             cord = []
+            print('\nInserisci i punti geografici della strada (minimo 2, lat [-90, 90], lon [-180, 180]), \ninserisci q per passare al prossimo step')
+
+            lat = lon = ''
             while True:
                 lat = input(f"Latitudine {i}° punto: ").lower().strip()
-                if lat == 'q': break
+                if lat == 'q' and i > 2: break
 
                 lon = input(f"Longitudine {i}° punto: ").lower().strip()
-                if lon == 'q': break
+                if lon == 'q' and i > 2: break
 
-                cord.append([float(lon), float(lat)])
+                try:
+                    lon = float(lon)
+                    lat = float(lat)
+                    cord.append([lon, lat])
+                    i += 1
+                except:
+                    print('Coordinate non valide')
 
-                i += 1
-
-            if i < 3:
-                print('Inserisci almeno 2 punti')
+            if i < 3: print('')
             else:
                 terreni = db.find_terreni_by_strada(cord)
 
@@ -163,20 +193,24 @@ if __name__ == '__main__':
                     print("\nTerreni trovati:")
                     for terreno in terreni:
                         for k, v in terreno.items():
-                            if k in ["coordinate", "_id", 'type']:
+                            if k in [ "_id", 'type']:
+                                continue
+
+                            if k == 'coordinate':
+                                print(f'{k}: {v["coordinates"]}')
                                 continue
                             print(f'{k}: {v}')
                         print('')
 
                 else:
-                    print('\nNessun terreno trovato.')
+                    print('\nNessun terreno trovato.\n')
 
-            input('\nPremi invio per continuare...')
+            input('Premi invio per continuare...')
 
         ## aggiungi terreno
         elif scelta == 4:
             while True:    
-                print('Inserisci i punti geografici del terreno (minimo 3), \ninserisci q per passare al prossimo step\n')
+                print('\nInserisci le coordinate geografiche degli angoli del terreno (minimo 3, lat [-90, 90], lon [-180, 180]), \ninserisci q per passare al prossimo step')
                 i = 1
                 cord = []
                 try:
@@ -187,9 +221,14 @@ if __name__ == '__main__':
                         lon = input(f"Longitudine {i}° punto: ").lower().strip()
                         if lon == 'q': break
 
-                        cord.append([float(lon), float(lat)])
+                        try:
+                            lon = float(lon)
+                            lat = float(lat)
+                            cord.append([lon, lat])
+                            i += 1
+                        except:
+                            print('Coordinate non valide')
 
-                        i += 1
 
                     if len(cord) >= 3:
                         cord = cord + [cord[0]]  # Chiude il poligono
@@ -213,19 +252,26 @@ if __name__ == '__main__':
                             break
                     else: break
 
-                except: 
+                except Exception as e:
                     print("Errore coordinate non valide, riprovare")
             input('\nPremi invio per continuare...')
 
+        ## Visualizza tutti i terreni
         elif scelta == 5:
-            for terreno in db.find_terreni():
-                for k, v in terreno.items():
-                    if k in ["_id", 'type']:
-                        continue
-                    if k == 'coordinate':
-                        print(f'{k}: {v["coordinates"]}')
-                        continue
-                    print(f'{k}: {v}')
-                print('')
+            print('')
+            terreni = db.find_terreni()
 
-            input('\nPremi invio per continuare...')
+            if terreni:
+                for terreno in terreni:
+                    for k, v in terreno.items():
+                        if k in ["_id", 'type']:
+                            continue
+                        if k == 'coordinate':
+                            print(f'{k}: {v["coordinates"]}')
+                            continue
+                        print(f'{k}: {v}')
+                    print('')
+            else:
+                print('Nessun terreno inserito\n')
+
+            input('Premi invio per continuare...')

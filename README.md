@@ -24,15 +24,11 @@ TerrenoDatabase
 TerrenoDatabase è una classe Python progettata per interagire con un database MongoDB per la gestione e la ricerca di terreni. La classe include metodi per caricare dati iniziali, trovare un terreno tramite coordinate geografiche e trovare terreni per proprietario.
 
 Requisiti
-Python 3.x
-Libreria pymongo
-Libreria json
+- Python 3.x
+- Libreria pymongo
+
 Installazione
 Per installare le dipendenze necessarie, puoi usare il comando pip per installare pymongo. Assicurati inoltre di avere un'istanza di MongoDB in esecuzione. Di default, la classe si connette a localhost sulla porta 27017.
-
-Utilizzo
-Inizializzazione
-Crea un'istanza della classe TerrenoDatabase specificando l'host, la porta e il nome del database.
 
 Metodi
 Caricamento dei dati iniziali
