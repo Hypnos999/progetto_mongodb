@@ -58,7 +58,7 @@ if __name__ == '__main__':
     while True:
         try:
             host = input('Inserisci l\'host a cui connettersi (lascia vuoto per 0.0.0.0): ').strip()
-            port = (input('Inserisci la porta (lascia vuoto per 27017): ').strip())
+            port = input('Inserisci la porta (lascia vuoto per 27017): ').strip()
 
             if host == '':
                 host = '0.0.0.0'
